@@ -182,7 +182,7 @@ export default function Hub({
           className="input"
           type="search"
           inputMode="search"
-          placeholder="חיפוש… למשל: הרצאות, רב מסר, נערי הברזל"
+          placeholder="חיפוש לפי שם או נושא…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           aria-label="חיפוש קישור"
