@@ -1,0 +1,375 @@
+@import "tailwindcss";
+
+/*
+  מקצר קישורים - מערכת עיצוב
+  קונסולה כהה, פרימיום, "חדר בקרה". אקסנט ליים חשמלי = אות חי / לחיצות.
+*/
+
+:root {
+  --bg: #0e0f13;
+  --bg-soft: #14161d;
+  --surface: #191c25;
+  --surface-2: #21252f;
+  --surface-3: #2a2f3b;
+  --border: #2a2e3a;
+  --border-soft: #21242e;
+  --text: #f3f4f6;
+  --muted: #9aa0ac;
+  --faint: #6b7280;
+
+  --accent: #c7f24e;      /* ליים חשמלי — פעולה ראשית, נתונים חיים */
+  --accent-press: #b4e035;
+  --accent-glow: rgba(199, 242, 78, 0.16);
+  --accent-ink: #0e0f13;  /* טקסט על אקסנט */
+
+  --amber: #ffcf6b;       /* הדגשה משנית */
+  --sky: #7cc7ff;         /* קטגוריה / פלטפורמה */
+  --danger: #ff6b6b;
+
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 18px 50px -20px rgba(0, 0, 0, 0.7);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* אווירה: זוהר ליים עדין בפינה + טקסטורת רשת עדינה */
+  background-image:
+    radial-gradient(900px 500px at 100% -5%, var(--accent-glow), transparent 60%),
+    radial-gradient(700px 600px at -10% 110%, rgba(124, 199, 255, 0.06), transparent 55%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-feature-settings: "ss02";
+  direction: ltr;
+  unicode-bidi: plaintext;
+}
+
+/* ---------- primitives ---------- */
+
+.card {
+  background: linear-gradient(180deg, var(--surface) 0%, var(--bg-soft) 140%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 15px;
+  border-radius: var(--radius-sm);
+  padding: 11px 18px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease, opacity 0.15s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 8px 24px -10px var(--accent-glow);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-press);
+  box-shadow: 0 10px 30px -8px var(--accent-glow);
+}
+
+.btn-ghost {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-3);
+  border-color: var(--surface-3);
+}
+
+.btn-quiet {
+  background: transparent;
+  color: var(--muted);
+  padding: 8px 12px;
+}
+.btn-quiet:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  padding: 11px 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--faint);
+}
+.input.mono {
+  font-size: 14px;
+}
+
+.label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-soft);
+  border: 0;
+}
+
+/* ---------- animations ---------- */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rise {
+  animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes pulse-live {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 var(--accent-glow);
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 0 5px transparent;
+  }
+}
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--accent);
+  animation: pulse-live 2s ease-in-out infinite;
+}
+
+@keyframes flash {
+  from {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  to {
+    background: var(--surface-2);
+  }
+}
+.flash {
+  animation: flash 0.6s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .live-dot,
+  .flash {
+    animation: none;
+  }
+}
+
+/* ---------- דף המפה ---------- */
+
+.hub-search {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 12px 0;
+  margin-top: 14px;
+  background: linear-gradient(180deg, var(--bg) 78%, transparent);
+}
+
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+  gap: 12px;
+}
+
+.hub-card {
+  position: relative;
+  display: block;
+  background: linear-gradient(180deg, var(--surface) 0%, var(--bg-soft) 140%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 15px 16px;
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* כוכב מועדפים בפינת הכרטיס (בצד שמאל בעברית) */
+.hub-star {
+  position: absolute;
+  top: 7px;
+  inset-inline-end: 7px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  color: var(--faint);
+  font-size: 17px;
+  line-height: 1;
+  z-index: 2;
+  transition: color 0.15s ease, transform 0.12s ease, background 0.15s ease;
+}
+.hub-star:hover {
+  color: var(--accent);
+  background: var(--surface-2);
+  transform: scale(1.1);
+}
+.hub-star.on {
+  color: var(--accent);
+}
+.hub-star:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* כפתור העתקת כתובת, יושב ליד הכוכב */
+.hub-copy {
+  position: absolute;
+  top: 7px;
+  inset-inline-end: 39px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  color: var(--faint);
+  z-index: 2;
+  transition: color 0.15s ease, transform 0.12s ease, background 0.15s ease;
+}
+.hub-copy:hover {
+  color: var(--accent);
+  background: var(--surface-2);
+  transform: scale(1.1);
+}
+.hub-copy.copied {
+  color: var(--accent);
+}
+.hub-copied-tip {
+  position: absolute;
+  top: 34px;
+  inset-inline-end: 0;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: rise 0.2s ease-out;
+}
+a.hub-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px -18px var(--accent-glow);
+}
+
+@media (max-width: 560px) {
+  .hub-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* thin scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-3) transparent;
+}
