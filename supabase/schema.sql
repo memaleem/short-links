@@ -23,6 +23,8 @@ create index links_links_slug_idx on links.links (slug);
 create index links_links_created_idx on links.links (created_at desc);
 
 -- תיעוד לחיצות
+-- params: פרמטרי המעקב שהגיעו ב-query string של הקישור המקוצר (utm_campaign, gclid וכו').
+-- מאפשר לפלח לחיצות לפי קמפיין תחת קישור אחד, במקום קישור נפרד לכל קמפיין.
 create table links.clicks (
   id uuid primary key default gen_random_uuid(),
   link_id uuid not null references links.links(id) on delete cascade,
@@ -32,11 +34,14 @@ create table links.clicks (
   device text,
   browser text,
   os text,
-  referrer text
+  referrer text,
+  params jsonb
 );
 
 create index links_clicks_link_idx on links.clicks (link_id);
 create index links_clicks_created_idx on links.clicks (created_at desc);
+-- אינדקס חלקי - רק שורות שנושאות פרמטרים, כדי שיישאר קטן ברוב אורגני
+create index links_clicks_params_idx on links.clicks using gin (params) where params is not null;
 
 -- דף "המפה" - ריכוז קישורים אישי בכתובת סודית
 create table links.hub_links (

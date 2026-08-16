@@ -3,7 +3,8 @@ import { db } from "@/lib/supabase";
 import { buildDestination } from "@/lib/url";
 import { parseUA } from "@/lib/ua";
 import { hasPixel, interstitialHtml } from "@/lib/pixel";
-import type { LinkRow } from "@/lib/types";
+import { extractParams } from "@/lib/tracking";
+import type { LinkRow, ClickInsert } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -40,7 +41,7 @@ export async function GET(
     const country = req.headers.get("x-vercel-ip-country");
     const cityRaw = req.headers.get("x-vercel-ip-city");
     const city = cityRaw ? safeDecode(cityRaw) : null;
-    const { error: clickErr } = await supa.from("clicks").insert({
+    const base: ClickInsert = {
       link_id: link.id,
       country: country && country !== "XX" ? country : null,
       city,
@@ -48,7 +49,18 @@ export async function GET(
       browser,
       os,
       referrer: req.headers.get("referer") || null,
-    });
+    };
+    const params = extractParams(req.nextUrl.searchParams);
+    const payload: ClickInsert = params ? { ...base, params } : base;
+
+    let { error: clickErr } = await supa.from("clicks").insert(payload);
+
+    // 42703 = העמודה params לא קיימת, כלומר המיגרציה עוד לא הורצה על המסד.
+    // נרשמת לחיצה בלי הפילוח, כדי שהמונה לא ייעצר בשקט עד שמריצים אותה.
+    if (clickErr && params && clickErr.code === "42703") {
+      console.error("[click-params-missing]", "run supabase/migrations/001-click-params.sql");
+      ({ error: clickErr } = await supa.from("clicks").insert(base));
+    }
     if (clickErr) console.error("[click-insert]", slug, clickErr.message);
   } catch (e) {
     console.error("[click-insert-throw]", slug, (e as Error)?.message);

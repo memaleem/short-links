@@ -116,7 +116,20 @@ export default function LinkDetail({
             <BreakdownCard title="מקור התנועה" buckets={summary.byReferrer} total={summary.total} />
             <BreakdownCard title="מדינה" buckets={summary.byCountry.slice(0, 6)} total={summary.total} withFlag />
             <BreakdownCard title="עיר" buckets={summary.byCity.slice(0, 6)} total={summary.total} empty="אין נתוני עיר" />
+            {summary.hasParams && (
+              <>
+                <BreakdownCard title="קמפיין" buckets={summary.byCampaign.slice(0, 6)} total={summary.total} />
+                <BreakdownCard title="ממומן מול אורגני" buckets={summary.byTraffic} total={summary.total} />
+              </>
+            )}
           </div>
+          {!summary.hasParams && (
+            <div className="card" style={{ padding: "16px 20px", marginTop: 14, boxShadow: "none", borderColor: "var(--border-soft)", fontSize: 13.5, color: "var(--muted)" }}>
+              רוצה לדעת איזה קמפיין הביא כל לחיצה? הוסף פרמטר לקישור בכל מקום שבו אתה מפרסם אותו,
+              למשל <span className="mono" dir="ltr">{`${shortUrl}?utm_campaign=ep12&utm_medium=cpc`}</span> —
+              ויופיע כאן פילוח לפי קמפיין ולפי ממומן מול אורגני.
+            </div>
+          )}
         </>
       )}
 
