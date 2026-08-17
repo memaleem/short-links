@@ -1,4 +1,5 @@
 import type { ClickRow } from "./types";
+import { trafficKind } from "./tracking";
 
 export type Bucket = { key: string; label: string; count: number };
 
@@ -53,6 +54,14 @@ const DEVICE_LABEL: Record<string, string> = {
   desktop: "מחשב",
 };
 
+const UNTAGGED = "—";
+
+const TRAFFIC_LABEL: Record<string, string> = {
+  paid: "ממומן",
+  organic: "אורגני",
+  untagged: "לא מתויג",
+};
+
 export function summarize(clicks: ClickRow[]) {
   const byDevice = tally(clicks, (c) => c.device || "desktop", (k) => DEVICE_LABEL[k] || k);
   const byCountry = tally(clicks, (c) => c.country || "—", (k) =>
@@ -60,12 +69,27 @@ export function summarize(clicks: ClickRow[]) {
   );
   const byCity = tally(clicks, (c) => c.city || "—").filter((b) => b.key !== "—");
   const byReferrer = tally(clicks, (c) => hostOf(c.referrer), (k) => REF_LABEL[k] || k);
+
+  // פילוחי קמפיין - רלוונטיים רק אם הגיעו לחיצות עם פרמטרי מעקב.
+  // בלי הבדיקה הזו לחיצות ישנות (מלפני התיוג) היו נספרות כאורגניות
+  // ומציגות תמונה מטעה.
+  const hasParams = clicks.some((c) => c.params && Object.keys(c.params).length > 0);
+  const byCampaign = tally(clicks, (c) => c.params?.utm_campaign || UNTAGGED, (k) =>
+    k === UNTAGGED ? "ללא תיוג" : k
+  );
+  const byTraffic = tally(clicks, (c) => trafficKind(c.params), (k) =>
+    TRAFFIC_LABEL[k] || k
+  );
+
   return {
     total: clicks.length,
     byDevice,
     byCountry,
     byCity,
     byReferrer,
+    hasParams,
+    byCampaign,
+    byTraffic,
     last14: daySeries(clicks, 14),
   };
 }

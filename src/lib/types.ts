@@ -37,6 +37,9 @@ export type HubLinkRow = {
   updated_at: string;
 };
 
+/** פרמטרי המעקב שהגיעו ב-query string של הקישור המקוצר. */
+export type ClickParams = Record<string, string>;
+
 export type ClickRow = {
   id: string;
   link_id: string;
@@ -47,4 +50,13 @@ export type ClickRow = {
   browser: string | null;
   os: string | null;
   referrer: string | null;
+  params: ClickParams | null;
+};
+
+/**
+ * שורת לחיצה חדשה. params אופציונלי כדי שאפשר יהיה להכניס לחיצה גם בלעדיו,
+ * למקרה שמיגרציית העמודה עוד לא הורצה על המסד.
+ */
+export type ClickInsert = Omit<ClickRow, "id" | "created_at" | "params"> & {
+  params?: ClickParams | null;
 };
