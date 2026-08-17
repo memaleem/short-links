@@ -55,9 +55,14 @@ export async function GET(
 
     let { error: clickErr } = await supa.from("clicks").insert(payload);
 
-    // 42703 = העמודה params לא קיימת, כלומר המיגרציה עוד לא הורצה על המסד.
+    // העמודה params לא קיימת, כלומר המיגרציה עוד לא הורצה על המסד.
     // נרשמת לחיצה בלי הפילוח, כדי שהמונה לא ייעצר בשקט עד שמריצים אותה.
-    if (clickErr && params && clickErr.code === "42703") {
+    //
+    // שני קודים, כי שתי שכבות שונות עונות: PGRST204 מגיע מ-PostgREST על
+    // הכנסה לעמודה שאיננה במטמון הסכימה שלו - וזו התשובה בפועל להכנסה -
+    // ואילו 42703 הוא קוד השגיאה הגולמי של פוסטגרס, שחוזר כשהמטמון כן
+    // מכיר את העמודה אבל היא איננה בטבלה עצמה.
+    if (clickErr && params && (clickErr.code === "PGRST204" || clickErr.code === "42703")) {
       console.error("[click-params-missing]", "run supabase/migrations/001-click-params.sql");
       ({ error: clickErr } = await supa.from("clicks").insert(base));
     }

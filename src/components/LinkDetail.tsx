@@ -126,8 +126,8 @@ export default function LinkDetail({
           {!summary.hasParams && (
             <div className="card" style={{ padding: "16px 20px", marginTop: 14, boxShadow: "none", borderColor: "var(--border-soft)", fontSize: 13.5, color: "var(--muted)" }}>
               רוצה לדעת איזה קמפיין הביא כל לחיצה? הוסף פרמטר לקישור בכל מקום שבו אתה מפרסם אותו,
-              למשל <span className="mono" dir="ltr">{`${shortUrl}?utm_campaign=ep12&utm_medium=cpc`}</span> —
-              ויופיע כאן פילוח לפי קמפיין ולפי ממומן מול אורגני.
+              למשל <span className="mono" dir="ltr">{`${shortUrl}?utm_campaign=ep12&utm_medium=cpc`}</span>.
+              יופיע כאן פילוח לפי קמפיין ולפי ממומן מול אורגני.
             </div>
           )}
         </>

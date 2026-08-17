@@ -8,8 +8,23 @@ import type { ClickParams } from "./types";
  * אישיים, ואין שום סיבה לשמור אותם במסד.
  */
 
-/** מזהי קליק של רשתות הפרסום - כולם מסתיימים ב-clid חוץ מאלה. */
-const CLICK_IDS = new Set(["gclid", "wbraid", "gbraid", "dclid", "msclkid", "igshid"]);
+/**
+ * מזהי קליק ששווה לשמור. הרשימה רחבה בכוונה - כאן רק מחליטים מה נכנס
+ * למסד, ולא מה נחשב ממומן. את ההחלטה הזו עושה PAID_CLICK_IDS למטה.
+ */
+const CAPTURE_CLICK_IDS = new Set([
+  "gclid",
+  "wbraid",
+  "gbraid",
+  "dclid",
+  "msclkid",
+  "ttclid",
+  "twclid",
+  "fbclid",
+  "igshid",
+  "epik",
+  "li_fat_id",
+]);
 
 /** פרמטרים כלליים נפוצים שנהוג להשתמש בהם לייחוס. */
 const EXTRA = new Set(["ref", "src", "source", "campaign"]);
@@ -22,7 +37,7 @@ function isTrackingKey(key: string): boolean {
   return (
     key.startsWith("utm_") ||
     key.endsWith("clid") ||
-    CLICK_IDS.has(key) ||
+    CAPTURE_CLICK_IDS.has(key) ||
     EXTRA.has(key)
   );
 }
@@ -49,6 +64,26 @@ export function extractParams(searchParams: URLSearchParams): ClickParams | null
   return n > 0 ? out : null;
 }
 
+/**
+ * מזהי קליק שמופיעים אך ורק בתנועה ממומנת.
+ *
+ * שים לב למי שאיננו כאן, ובכוונה:
+ * fbclid ו-igshid נדבקים לכל קישור יוצא מפייסבוק ומאינסטגרם, גם בפוסט
+ * אורגני לגמרי. אילו היינו סופרים אותם כממומן, כל שיתוף אורגני ברשתות
+ * היה נצבע כתנועה ששילמנו עליה - בדיוק ההטעיה שהפילוח הזה בא למנוע.
+ */
+const PAID_CLICK_IDS = new Set([
+  "gclid", // גוגל אדס
+  "wbraid", // גוגל אדס, מכשירי אפל
+  "gbraid", // גוגל אדס, מכשירי אפל
+  "dclid", // Display & Video 360
+  "msclkid", // מיקרוסופט אדס
+  "ttclid", // טיקטוק אדס
+  "twclid", // X אדס
+  "epik", // פינטרסט אדס
+  "li_fat_id", // לינקדאין אדס
+]);
+
 /** ערכי utm_medium שמעידים על תנועה ממומנת. */
 const PAID_MEDIUMS = new Set([
   "cpc",
@@ -73,8 +108,23 @@ const PAID_MEDIUMS = new Set([
 export function isPaid(params: ClickParams | null): boolean {
   if (!params) return false;
   for (const key of Object.keys(params)) {
-    if (key.endsWith("clid") || CLICK_IDS.has(key)) return true;
+    if (PAID_CLICK_IDS.has(key)) return true;
   }
   const medium = (params.utm_medium || "").toLowerCase();
   return PAID_MEDIUMS.has(medium);
+}
+
+/**
+ * שלוש הקטגוריות של פילוח "ממומן מול אורגני".
+ *
+ * "לא מתויג" קיימת כי לחיצה בלי פרמטרים איננה עדות לתנועה אורגנית -
+ * היא פשוט לחיצה שלא ידוע מאיפה הגיעה. כל הלחיצות ההיסטוריות, מלפני
+ * שהתחלנו לתייג, נופלות לכאן. לספור אותן כאורגניות היה מנפח את הצד
+ * האורגני ומייפה את התמונה.
+ */
+export type TrafficKind = "paid" | "organic" | "untagged";
+
+export function trafficKind(params: ClickParams | null): TrafficKind {
+  if (!params || Object.keys(params).length === 0) return "untagged";
+  return isPaid(params) ? "paid" : "organic";
 }

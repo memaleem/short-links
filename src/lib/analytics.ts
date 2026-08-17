@@ -1,5 +1,5 @@
 import type { ClickRow } from "./types";
-import { isPaid } from "./tracking";
+import { trafficKind } from "./tracking";
 
 export type Bucket = { key: string; label: string; count: number };
 
@@ -59,6 +59,7 @@ const UNTAGGED = "—";
 const TRAFFIC_LABEL: Record<string, string> = {
   paid: "ממומן",
   organic: "אורגני",
+  untagged: "לא מתויג",
 };
 
 export function summarize(clicks: ClickRow[]) {
@@ -76,7 +77,7 @@ export function summarize(clicks: ClickRow[]) {
   const byCampaign = tally(clicks, (c) => c.params?.utm_campaign || UNTAGGED, (k) =>
     k === UNTAGGED ? "ללא תיוג" : k
   );
-  const byTraffic = tally(clicks, (c) => (isPaid(c.params) ? "paid" : "organic"), (k) =>
+  const byTraffic = tally(clicks, (c) => trafficKind(c.params), (k) =>
     TRAFFIC_LABEL[k] || k
   );
 
