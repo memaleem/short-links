@@ -57,7 +57,9 @@ export function extractParams(searchParams: URLSearchParams): ClickParams | null
     if (!key || !value) continue;
     if (key.length > MAX_KEY) continue;
     if (!isTrackingKey(key)) continue;
-    if (key in out) continue; // פרמטר כפול - הראשון קובע
+    // hasOwn ולא in, אחרת פרמטר ששמו כשם תכונה מהפרוטוטיפ (constructor,
+    // toString) נראה כאילו כבר נלכד, ופרמטר אמיתי בשם כזה היה נבלע בשקט.
+    if (Object.hasOwn(out, key)) continue; // פרמטר כפול - הראשון קובע
     out[key] = value.slice(0, MAX_VALUE);
     n++;
   }
